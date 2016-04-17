@@ -38,20 +38,14 @@ task = Asana::Task.find_by_id(client, '112974848331541')
 # }
 # puts "Attachments #{attachments}"
 
-# curl -u SPRINTLY_EMAIL:API_KEY https://sprint.ly/api/products.json
-# https://sprint.ly/api/user/whoami.json
-
-
 @toSend = {
   "type" => "task",
   "title" => task.name,
   "description" => task.notes
 }#.to_json
 
-# /api/products/{product_id}/items.json
-# test product id: 40942
 # uri = URI.parse("https://sprint.ly/api/user/whoami.json")
-uri = URI.parse("https://sprint.ly/api/products/40942/items.json")
+uri = URI.parse("https://sprint.ly/api/products/#{conf['sprintly_product_id']}/items.json")
 # uri = URI.parse("https://httpbin.org/post")
 https = Net::HTTP.new(uri.host,uri.port)
 https.use_ssl = true
@@ -59,7 +53,7 @@ https.use_ssl = true
 req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/x-www-form-urlencoded'})
 req['foo'] = 'bar'
 req.basic_auth conf['sprintly_email'], conf['sprintly_api_key']
-req.body = "[ #{@toSend} ]"
+#req.body = "[ #{@toSend} ]"
 req.body = URI.encode_www_form(@toSend)
 puts req.body
 res = https.request(req)
