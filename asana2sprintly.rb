@@ -2,12 +2,33 @@
 
 require 'asana'
 require 'yaml'
+require 'uri'
+require 'net/http'
+require 'net/https'
 
 conf = YAML::load_file('config.yaml')
 
 puts conf
 puts "Asana Token: #{conf['asana_token']}"
 puts "Sprintly Key: #{conf['sprintly_api_key']}"
+puts "Sprintly Email: #{conf['sprintly_email']}"
+
+@toSend = {
+    "date" => "2012-07-02",
+    "aaaa" => "bbbbb",
+    "cccc" => "dddd"
+}.to_json
+
+uri = URI.parse("https://sprint.ly/api/user/whoami.json")
+https = Net::HTTP.new(uri.host,uri.port)
+https.use_ssl = true
+req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json'})
+req['foo'] = 'bar'
+req.basic_auth conf['sprintly_email'], conf['sprintly_api_key']
+req.body = "[ #{@toSend} ]"
+res = https.request(req)
+puts "Response #{res.code} #{res.message}: #{res.body}"
+
 
 exit
 
@@ -45,3 +66,4 @@ puts "Attachments #{attachments}"
 #puts lg_attachment
 
 # curl -u SPRINTLY_EMAIL:API_KEY https://sprint.ly/api/products.json
+# https://sprint.ly/api/user/whoami.json
