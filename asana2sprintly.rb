@@ -9,6 +9,15 @@ require 'json'
 
 conf = YAML::load_file('config.yaml')
 
+# pop these args off so ARGF doesn't try
+# to read them as files
+override_tags = []
+until ARGV.empty? do
+  override_tags.push(ARGV.shift)
+end
+
+# using the 'tix' hash for uniqueness to make sure I don't dupe tickets
+# in a single run
 tix = {}
 re = /(https?:\/\/app.asana.com\/\d\/\d+\/(\d+)(\/f)?)/
 ARGF.each { |line|
@@ -18,9 +27,6 @@ ARGF.each { |line|
     }
   end
 }
-
-# using the hash for uniqueness to make sure I don't dupe tickets
-# in a single run
 
 client = Asana::Client.new do |c|
   c.authentication :access_token, conf['asana_token']
@@ -32,6 +38,9 @@ tix.keys.each { |aID|
   tags = ""
   task.tags.each { |t|
     tags << t.name << ","
+  }
+  override_tags.each { |t|
+    tags << t << ","
   }
   tags.chop!
 
@@ -45,6 +54,7 @@ tix.keys.each { |aID|
 
   @toSend = {
     "type" => "task",
+    "status" => "backlog",
     "title" => task.name,
     "description" => task.notes + "\n\nSource: #{tix[aID]}",
     "tags" => tags
