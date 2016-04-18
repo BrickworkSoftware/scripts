@@ -26,6 +26,13 @@ task = Asana::Task.find_by_id(client, '112974848331541')
 # puts task.name
 # puts task.notes
 # puts task.tags
+
+tags = ""
+task.tags.each { |t|
+  tags << t.name << ","
+}
+tags.chop!
+
 # puts task.id
 #
 # puts task
@@ -41,7 +48,8 @@ task = Asana::Task.find_by_id(client, '112974848331541')
 @toSend = {
   "type" => "task",
   "title" => task.name,
-  "description" => task.notes
+  "description" => task.notes,
+  "tags" => tags
 }#.to_json
 
 # uri = URI.parse("https://sprint.ly/api/user/whoami.json")
@@ -51,7 +59,7 @@ https = Net::HTTP.new(uri.host,uri.port)
 https.use_ssl = true
 # req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json'})
 req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/x-www-form-urlencoded'})
-req['foo'] = 'bar'
+# req['foo'] = 'bar'
 req.basic_auth conf['sprintly_email'], conf['sprintly_api_key']
 #req.body = "[ #{@toSend} ]"
 req.body = URI.encode_www_form(@toSend)
