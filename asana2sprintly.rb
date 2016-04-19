@@ -7,7 +7,7 @@ require 'net/http'
 require 'net/https'
 require 'json'
 
-conf = YAML::load_file('config.yaml')
+conf = YAML::load_file('config.yml')
 
 # pop these args off so ARGF doesn't try
 # to read them as files
