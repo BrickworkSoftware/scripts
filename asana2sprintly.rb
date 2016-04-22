@@ -79,38 +79,6 @@ def add_attachments_to_sprintly_ticket( files, ticket_id)
   res
 end
 
-def add_attachment_to_sprintly_ticket( name, url, ticket_id)
-
-  begin
-    file = ""
-    open(url) { |f|
-      file = Tempfile.new(name)
-      file.puts f.read
-    }
-
-    # /api/products/{product_id}/items/{item_number}/attachments.json
-    uri = URI.parse("https://sprint.ly/api/products/#{@conf['sprintly_product_id']}/items/#{ticket_id}/attachments.json")
-    form_data = [
-      #    ['input', File.open('filename.png')]
-      ['file', file.open]
-    ]
-
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    req = Net::HTTP::Post.new uri
-    req.basic_auth @conf['sprintly_email'], @conf['sprintly_api_key']
-
-    # prepare request parameters
-    req.set_form(form_data, 'multipart/form-data')
-    res = http.request(req)
-  ensure
-    file.close
-    file.unlink
-  end
-  res
-end
-
 # pop these args off so ARGF doesn't try
 # to read them as files
 override_tags = []
