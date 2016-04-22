@@ -5,6 +5,7 @@ require 'yaml'
 require 'uri'
 require 'net/http'
 require 'net/https'
+require 'open-uri'
 require 'json'
 
 @conf = YAML::load_file('config.yml')
@@ -39,6 +40,75 @@ def create_sprintly_ticket( type, status, name, desc, tags, asana_url)
   req.body = URI.encode_www_form(ticket)
   #puts req.body
   return https.request(req)
+end
+
+def add_attachments_to_sprintly_ticket( files, ticket_id)
+
+  begin
+    form_data = []
+    tmp_file_list = []
+
+    i = 0
+    files.each { |f|
+      open(f.download_url) { |data|
+        file = Tempfile.new(f.name)
+        file.puts data.read
+        form_data.push(["file#{i+=1}", file.open])
+        tmp_file_list.push(file)
+      }
+    }
+
+    # /api/products/{product_id}/items/{item_number}/attachments.json
+    uri = URI.parse("https://sprint.ly/api/products/#{@conf['sprintly_product_id']}/items/#{ticket_id}/attachments.json")
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    req = Net::HTTP::Post.new uri
+    req.basic_auth @conf['sprintly_email'], @conf['sprintly_api_key']
+
+    # prepare request parameters
+    req.set_form(form_data, 'multipart/form-data')
+    res = http.request(req)
+  ensure
+    tmp_file_list.each { |file|
+      file.close
+      file.unlink
+    }
+  end
+  res
+end
+
+def add_attachment_to_sprintly_ticket( name, url, ticket_id)
+
+  begin
+    file = ""
+    open(url) { |f|
+      file = Tempfile.new(name)
+      file.puts f.read
+    }
+
+    # /api/products/{product_id}/items/{item_number}/attachments.json
+    uri = URI.parse("https://sprint.ly/api/products/#{@conf['sprintly_product_id']}/items/#{ticket_id}/attachments.json")
+    form_data = [
+      #    ['input', File.open('filename.png')]
+      ['file', file.open]
+    ]
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    req = Net::HTTP::Post.new uri
+    req.basic_auth @conf['sprintly_email'], @conf['sprintly_api_key']
+
+    # prepare request parameters
+    req.set_form(form_data, 'multipart/form-data')
+    res = http.request(req)
+  ensure
+    file.close
+    file.unlink
+  end
+  res
 end
 
 # pop these args off so ARGF doesn't try
@@ -77,12 +147,19 @@ tix.keys.each { |aID|
   }
   tags.chop!
 
+  # download_url, name
   attachments = get_attachments_by_id( client, task.id)
 
   res = create_sprintly_ticket( "task", "backlog", task.name, task.notes, tags, tix[aID])
 
   if res.code == "200"
-    puts "#{tix[aID]} => #{JSON.parse(res.body)['short_url']}"
+    sprintly_item = JSON.parse(res.body)
+    puts "#{tix[aID]} => #{sprintly_item['short_url']}"
+
+    add_attachments_to_sprintly_ticket(attachments, sprintly_item['number'])
+    # attachments.each{ |a|
+    #   add_attachment_to_sprintly_ticket(a.name, a.download_url, sprintly_item['number'])
+    # }
   else
     puts "Response #{res.code} #{res.message}: #{res.body}"
   end
