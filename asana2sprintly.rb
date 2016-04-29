@@ -69,6 +69,7 @@ def add_attachments_to_sprintly_ticket( files, ticket_id)
 
     # prepare request parameters
     req.set_form(form_data, 'multipart/form-data')
+     # occassionally errors out with Net::ReadTimeout
     res = http.request(req)
   ensure
     tmp_file_list.each { |file|
