@@ -5,6 +5,7 @@ require 'uri'
 require 'json'
 require 'date'
 require 'faraday'
+require 'csv'
 
 @conf = YAML::load_file('config.yml')
 
@@ -16,7 +17,6 @@ scores = {
   '~' => 0
 }
 
-today = Date.today
 d = Date.today
 if d.cwday == 1
   d -= 7
@@ -26,43 +26,95 @@ end
 # d -= d.cwday - 1 unless d.cwday == 1
 d.strftime('%Y-%m-%d')
 
+dates = [" "]
+freq = ["feature request"]
+bug = ["bug"]
+fprod = ["forward product"]
+impl = ["implementation"]
+eng = ["engineering"]
+
 conn = Faraday.new(url: 'https://sprint.ly') # create a new Connection with base URL
-conn.basic_auth( @conf['sprintly_email'], @conf['sprintly_api_key'])     # set the Authentication header
-# resp = conn.get('/api/items/search.json?q=closed:>=2016-05-30 closed:<=2016-06-06 -tag:"false alarm"&facets=tag&product=39361&limit=0')
-res = conn.get '/api/items/search.json',
-  {
-    # :q =>'closed:>=2016-05-30 closed:<=2016-06-06 -tag:"false alarm"',
-    :q =>'closed:>='+d.strftime('%Y-%m-%d')+' closed:<='+today.strftime('%Y-%m-%d')+' -tag:"false alarm"',
-    :facets => 'tag',
-    # :limit => 0,
-    :product => 39361
-  }
 
-# puts res.body
-hash = JSON.parse(res.body)
+# using hokey indexes to aid in the bifurcation of arrays for tracking tix and weights
+(1..4).each do |i|
+  # puts "Stats for "+d.strftime('%Y-%m-%d')+" to "+(d+7).strftime('%Y-%m-%d')
 
-weight = Hash.new(0)
+  conn.basic_auth( @conf['sprintly_email'], @conf['sprintly_api_key'])     # set the Authentication header
+  # resp = conn.get('/api/items/search.json?q=closed:>=2016-05-30 closed:<=2016-06-06 -tag:"false alarm"&facets=tag&product=39361&limit=0')
+  res = conn.get '/api/items/search.json',
+    {
+      # Range should  include >= Monday
+      :q =>'closed:>='+d.strftime('%Y-%m-%d')+' closed:<='+(d+7).strftime('%Y-%m-%d')+' -tag:"false alarm"',
+      :facets => 'tag',
+      # :limit => 0,
+      :product => 39361
+    }
 
-hash['items'].each do |i|
-  # puts i
-  i['tags'].each do |t|
-    case t
-    when "feature request"
-      weight['feature request'] += scores[i['score']]
-    when "bug"
-      weight['bug'] += scores[i['score']]
-    when "implementation"
-      weight['implementation'] += scores[i['score']]
-    when "engineering"
-      weight['engineering'] += scores[i['score']]
-    when "forward product"
-      weight['forward product'] += scores[i['score']]
+  # puts res.body
+  hash = JSON.parse(res.body)
+  weight = Hash.new(0)
+  total_tickets = 0
+  total_weights = 0
+
+  hash['items'].each do |i|
+    puts "Unscored Ticket: " + i['short_url'] if i['score'] == '~'
+    total_tickets += 1
+    total_weights += scores[i['score']]
+    tag_count = 0
+    i['tags'].each do |t|
+      case t
+      when "feature request"
+        weight['feature request'] += scores[i['score']]
+        tag_count += 1
+      when "bug"
+        weight['bug'] += scores[i['score']]
+        tag_count += 1
+      when "implementation"
+        weight['implementation'] += scores[i['score']]
+        tag_count += 1
+      when "engineering"
+        weight['engineering'] += scores[i['score']]
+        tag_count += 1
+      when "forward product"
+        weight['forward product'] += scores[i['score']]
+        tag_count += 1
+      end
     end
+    puts "Multi-counted ticket: #{i['short_url']}" if tag_count > 1
   end
 
+  tally = hash['facets']['tag']
+
+  # puts "Total Tickets: #{total_tickets}"
+  # puts tally.to_json
+  # puts "Total Weight: #{total_weights}"
+  # puts weight.to_json
+
+  def insert_data( arr, iter, tix, wght)
+    # dates << d.strftime('%Y-%m-%d') + " wghts"
+    # dates.insert(i, d.strftime('%Y-%m-%d') + " tix" )
+
+    # dates.insert(1+i, d.strftime('%Y-%m-%d') + " wghts" )
+    # dates.insert(1, d.strftime('%Y-%m-%d') + " tix" )
+
+    arr.insert(1, tix || 0 )
+    arr.insert(1+iter, wght || 0 )
+    return arr
+  end
+
+  dates = insert_data( dates, i, d.strftime('%Y-%m-%d') + " tix", d.strftime('%Y-%m-%d') + " wghts")
+  freq = insert_data(freq, i, tally['feature request'], weight['feature request'])
+  bug = insert_data(bug, i, tally['bug'], weight['bug'])
+  fprod = insert_data(fprod, i, tally['forward product'], weight['forward product'])
+  impl = insert_data(impl, i, tally['implementation'], weight['implementation'])
+  eng = insert_data(eng, i, tally['engineering'], weight['engineering'])
+
+  d -= 7 # previous weeks of stats for next iteration
 end
 
-tally = hash['facets']['tag']
-
-puts weight.to_json
-puts tally.to_json
+puts dates.to_csv
+puts freq.to_csv
+puts bug.to_csv
+puts fprod.to_csv
+puts impl.to_csv
+puts eng.to_csv
