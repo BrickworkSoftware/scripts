@@ -18,12 +18,12 @@ scores = {
 }
 
 d = Date.today
-if d.cwday == 1
-  d -= 7
+if d.cwday == 1 # is it Monday?
+  d -= 7 # skip to the previous Monday
 else
-  d -= d.cwday - 1
+  d -= d.cwday - 1 # skip to the most recent Monday
 end
-# d -= d.cwday - 1 unless d.cwday == 1
+
 d.strftime('%Y-%m-%d')
 
 dates = [" "]
