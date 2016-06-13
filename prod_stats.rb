@@ -113,8 +113,8 @@ conn = Faraday.new(url: 'https://sprint.ly') # create a new Connection with base
 end
 
 puts dates.to_csv
-puts freq.to_csv
-puts bug.to_csv
 puts fprod.to_csv
+puts freq.to_csv
 puts impl.to_csv
 puts eng.to_csv
+puts bug.to_csv
