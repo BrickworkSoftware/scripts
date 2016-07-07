@@ -36,7 +36,7 @@ eng = ["engineering"]
 conn = Faraday.new(url: 'https://sprint.ly') # create a new Connection with base URL
 
 # using hokey indexes to aid in the bifurcation of arrays for tracking tix and weights
-(1..4).each do |i|
+(1..5).each do |i|
   # puts "Stats for "+d.strftime('%Y-%m-%d')+" to "+(d+7).strftime('%Y-%m-%d')
 
   conn.basic_auth( @conf['sprintly_email'], @conf['sprintly_api_key'])     # set the Authentication header
@@ -103,13 +103,15 @@ conn = Faraday.new(url: 'https://sprint.ly') # create a new Connection with base
   end
 
   dates = insert_data( dates, i, d.strftime('%Y-%m-%d') + " tix", d.strftime('%Y-%m-%d') + " wghts")
+  d -= 7 # previous weeks of stats for next iteration
+
+  next if tally.nil?
   freq = insert_data(freq, i, tally['feature request'], weight['feature request'])
   bug = insert_data(bug, i, tally['bug'], weight['bug'])
   fprod = insert_data(fprod, i, tally['forward product'], weight['forward product'])
   impl = insert_data(impl, i, tally['implementation'], weight['implementation'])
   eng = insert_data(eng, i, tally['engineering'], weight['engineering'])
 
-  d -= 7 # previous weeks of stats for next iteration
 end
 
 puts dates.to_csv
