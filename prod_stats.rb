@@ -36,7 +36,7 @@ eng = ["engineering"]
 conn = Faraday.new(url: 'https://sprint.ly') # create a new Connection with base URL
 
 # using hokey indexes to aid in the bifurcation of arrays for tracking tix and weights
-(1..5).each do |i|
+(1..7).each do |i|
   # puts "Stats for "+d.strftime('%Y-%m-%d')+" to "+(d+7).strftime('%Y-%m-%d')
 
   conn.basic_auth( @conf['sprintly_email'], @conf['sprintly_api_key'])     # set the Authentication header
