@@ -32,7 +32,7 @@ require 'json'
 }
 @state_translation.default = "**UNKNOWN STATE**"
 
-def s2c(sprintly_item)
+def s2c_story(sprintly_item)
   item = {
     external_id: "#{sprintly_item['number']}",
     updated_at: sprintly_item['last_modified'],
@@ -41,8 +41,22 @@ def s2c(sprintly_item)
     estimate: @estimate_translation[sprintly_item['score']],
     workflow_state_id: @state_translation[sprintly_item['status']],
     name: sprintly_item['title'],
-    description: sprintly_item['description'],
-    project_id: @conf['clubhouse_project_id']
+    description: "#{sprintly_item['description']}\n\n\n#{sprintly_item['short_url']}",
+    project_id: @conf['clubhouse_project_id'],
+    tasks: []
+  }
+
+  return item
+end
+
+def s2c_task(sprintly_item)
+  item = {
+    complete: (sprintly_item['status'] == "completed" || sprintly_item['status'] == "accepted"),
+    created_at: sprintly_item['created_at'],
+    # description: sprintly_item['description'],
+    description: sprintly_item['title'],
+    external_id: "#{sprintly_item['number']}",
+    updated_at: sprintly_item['last_modified']
   }
 
   return item
@@ -50,22 +64,13 @@ end
 
 def add_s2c( ch_table, sprintly_item)
   if sprintly_item['parent'].nil?
-
+    ch_table[sprintly_item['number']] = s2c_story(sprintly_item)
   else
-
+    if ch_table[sprintly_item['parent']['number']].nil?
+      ch_table[sprintly_item['parent']['number']] = s2c_story(sprintly_item['parent'])
+    end
+    ch_table[sprintly_item['parent']['number']][:tasks] << s2c_task(sprintly_item)
   end
-
-  ch_item = {
-    external_id: "#{sprintly_item['number']}",
-    updated_at: sprintly_item['last_modified'],
-    created_at: sprintly_item['created_at'],
-    story_type: @type_translation[sprintly_item['type']],
-    estimate: @estimate_translation[sprintly_item['score']],
-    workflow_state_id: @state_translation[sprintly_item['status']],
-    name: sprintly_item['title'],
-    description: sprintly_item['description'],
-    project_id: @conf['clubhouse_project_id']
-  }
 
   return ch_table
 end
@@ -75,46 +80,45 @@ conn_c = Faraday.new(url: 'https://api.clubhouse.io') # create a new Connection 
 conn_s = Faraday.new(url: 'https://sprint.ly') # create a new Connection with base URL
 conn_s.basic_auth( @conf['sprintly_email'], @conf['sprintly_api_key'])
 
-res = conn_s.get "/api/products/#{@conf['sprintly_product_id']}/items.json",
-  {
-    # :children => true,
-    :status => 'backlog,in-progress'
-  }
-
-# puts res.body
-sprintly = JSON.parse(res.body)
-
-# line_num=0
-
+limit = 500
+# limit = 10
+iteration = 0
 table = {}
-sprintly.each do |item|
-  puts item.to_json
 
-  ch_item = {
-    external_id: "#{item['number']}",
-    updated_at: item['last_modified'],
-    created_at: item['created_at'],
-    story_type: type_translation[item['type']],
-    estimate: estimate_translation[item['score']],
-    workflow_state_id: state_translation[item['status']],
-    name: item['title'],
-    description: item['description'],
-    project_id: @conf['clubhouse_project_id']
-  }
+loop do
 
-  puts ch_item.to_json
+  res = conn_s.get "/api/products/#{@conf['sprintly_product_id']}/items.json",
+    {
+      :children => true,
+      :limit => limit,
+      :offset => iteration * limit,
+      :order_by => 'oldest',
+      # :status => 'someday,backlog,in-progress,completed,accepted'
+      :status => 'completed'
+    }
 
-  #next
-  #exit
+  sprintly = JSON.parse(res.body)
 
-  url = "/api/v1/stories"
-  puts url
-  res = conn_c.post do |req|
-    req.url url
-    req.params['token'] = @conf['clubhouse_api_token']
-    req.headers['Content-Type'] = 'application/json'
-    req.body = ch_item.to_json
+  # if no longer getting back items from the sprintly api, break
+  break if sprintly.empty?
+
+  sprintly.each do |item|
+
+    table = add_s2c(table, item)
+
+    # url = "/api/v1/stories"
+    # puts url
+    # res = conn_c.post do |req|
+    #   req.url url
+    #   req.params['token'] = @conf['clubhouse_api_token']
+    #   req.headers['Content-Type'] = 'application/json'
+    #   req.body = ch_item.to_json
+    # end
+    #
+    # puts res.body
   end
 
-  puts res.body
+  iteration += 1
 end
+
+puts table.values.to_json
