@@ -6,12 +6,13 @@ require 'json'
 
 @conf = YAML::load_file('config.yml')
 
+# using the fibonacci series
 @estimate_translation = {
   "~" => 0,
   "S" => 1,
   "M" => 2,
   "L" => 3,
-  "XL" => 4
+  "XL" => 5
 }
 @estimate_translation.default = "**UNKNOWN ESTIMATE**"
 
@@ -24,15 +25,21 @@ require 'json'
 @type_translation.default = "**UNKNOWN TYPE**"
 
 @state_translation = {
-  "accepted" => 500000016,
+  "someday" => 500000014,
   "backlog" => 500000011,
   "in-progress" => 500000015,
   "completed" => 500000010,
-  "someday" => 500000014
+  "accepted" => 500000016,
 }
 @state_translation.default = "**UNKNOWN STATE**"
 
 def s2c_story(sprintly_item)
+
+  labels = []
+  sprintly_item['tags'].each do |tag|
+    labels << { name: tag }
+  end
+
   item = {
     external_id: "#{sprintly_item['number']}",
     updated_at: sprintly_item['last_modified'],
@@ -43,6 +50,7 @@ def s2c_story(sprintly_item)
     name: sprintly_item['title'],
     description: "#{sprintly_item['description']}\n\n\n#{sprintly_item['short_url']}",
     project_id: @conf['clubhouse_project_id'],
+    labels: labels,
     tasks: []
   }
 
@@ -94,7 +102,7 @@ loop do
       :offset => iteration * limit,
       :order_by => 'oldest',
       # :status => 'someday,backlog,in-progress,completed,accepted'
-      :status => 'completed'
+      :status => 'backlog'
     }
 
   sprintly = JSON.parse(res.body)
@@ -106,19 +114,20 @@ loop do
 
     table = add_s2c(table, item)
 
-    # url = "/api/v1/stories"
-    # puts url
-    # res = conn_c.post do |req|
-    #   req.url url
-    #   req.params['token'] = @conf['clubhouse_api_token']
-    #   req.headers['Content-Type'] = 'application/json'
-    #   req.body = ch_item.to_json
-    # end
-    #
-    # puts res.body
   end
 
   iteration += 1
 end
 
 puts table.values.to_json
+
+# url = "/api/v1/stories/bulk"
+# puts url
+# res = conn_c.post do |req|
+#   req.url url
+#   req.params['token'] = @conf['clubhouse_api_token']
+#   req.headers['Content-Type'] = 'application/json'
+#   req.body = { :stories => table.values }.to_json
+# end
+#
+# puts res.body
