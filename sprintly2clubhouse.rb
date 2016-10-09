@@ -101,10 +101,11 @@ loop do
       :limit => limit,
       :offset => iteration * limit,
       :order_by => 'oldest',
-      # :status => 'someday,backlog,in-progress,completed,accepted'
-      :status => 'backlog'
+      :status => 'someday,backlog,in-progress,completed,accepted'
+      #  :status => 'backlog'
     }
 
+  # puts res.status
   sprintly = JSON.parse(res.body)
 
   # if no longer getting back items from the sprintly api, break
@@ -120,7 +121,7 @@ loop do
 end
 
 puts table.values.to_json
-
+#
 # url = "/api/v1/stories/bulk"
 # puts url
 # res = conn_c.post do |req|
@@ -130,4 +131,5 @@ puts table.values.to_json
 #   req.body = { :stories => table.values }.to_json
 # end
 #
+# puts res.status
 # puts res.body
