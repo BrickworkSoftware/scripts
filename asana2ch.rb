@@ -18,7 +18,7 @@ def get_attachments_by_id( client, id)
   return files
 end
 
-def create_sprintly_ticket( type, status, name, desc, tags, asana_url)
+def create_ch_ticket( type, status, name, desc, tags, asana_url)
   ticket = {
     "type" => type,
     "status" => status,
