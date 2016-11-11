@@ -7,7 +7,7 @@ require 'faraday'
 require 'colorize'
 
 @conf = YAML::load_file('config.yml')
-String.disable_colorization = true
+# String.disable_colorization = true
 
 domain, api_key, *file_list = ARGV
 
@@ -74,4 +74,4 @@ file_list.each { |file|
 }
 
 puts "\nLines Processed: #{lines}".colorize(:cyan)
-puts "Total Error Rows: #{errors}".colorize(:red)
+puts "    Error Lines: #{errors}".colorize(errors > 0 ? :red : :green)
