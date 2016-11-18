@@ -71,7 +71,7 @@ file_list.each { |file|
       status = ['result', 'error']
     end
 
-    print (row + status).to_csv.colorize(color)
+    print (row[0,6] + status).to_csv.colorize(color)
 
   end
 }
