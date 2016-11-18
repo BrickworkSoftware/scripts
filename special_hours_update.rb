@@ -43,7 +43,7 @@ file_list.each { |file|
     if row[0] != "store_number" # don't submit header labels
       # puts JSON.pretty_generate(hour).colorize(:yellow)
 
-      url = "/api/v3/admin/stores/#{row[0]}/special_hours"
+      url = "/api/v3/admin/stores/#{row[0]}/special_hours.json"
       # puts url
       res = conn.post do |req|
         req.url url
