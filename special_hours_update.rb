@@ -7,7 +7,7 @@ require 'faraday'
 require 'colorize'
 
 @conf = YAML::load_file('config.yml')
-# String.disable_colorization = true
+#String.disable_colorization = true
 
 domain, api_key, *file_list = ARGV
 
