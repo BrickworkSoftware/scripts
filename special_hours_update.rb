@@ -9,12 +9,25 @@ require 'colorize'
 @conf = YAML::load_file('config.yml')
 #String.disable_colorization = true
 
-domain, api_key, *file_list = ARGV
+api_key = ''
+domain, *file_list = ARGV
 
 conn = Faraday.new(url: "https://#{domain}.brickworksoftware.com") # create a new Connection with base URL
 # puts conn.url_prefix
 
 #String.color_samples
+
+if domain =~ /staging$/i
+  puts "STAGING".colorize(:cyan)
+  api_key = @conf['bw_staging_api_key']
+elsif domain =~ /uat$/i || domain =~ /qa$/i
+  puts "UAT".colorize(:cyan)
+  api_key = @conf['bw_uat_api_key']
+else
+  puts "PRODUCTION?!?".colorize(:red)
+  sleep(5) # wait for paniked abort
+  api_key = @conf['bw_prod_api_key']
+end
 
 errors = 0
 lines = 0
