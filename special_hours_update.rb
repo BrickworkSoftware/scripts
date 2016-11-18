@@ -21,11 +21,12 @@ if domain =~ /staging$/i
   puts "STAGING".colorize(:cyan)
   api_key = @conf['bw_staging_api_key']
 elsif domain =~ /uat$/i || domain =~ /qa$/i
-  puts "UAT".colorize(:cyan)
+  puts "UAT!".colorize(:yellow)
+  sleep(5) # wait for paniked CTRL-C
   api_key = @conf['bw_uat_api_key']
 else
   puts "PRODUCTION?!?".colorize(:red)
-  sleep(5) # wait for paniked abort
+  sleep(5) # wait for paniked CTRL-C
   api_key = @conf['bw_prod_api_key']
 end
 
