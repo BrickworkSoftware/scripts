@@ -55,7 +55,10 @@ file_list.each { |file|
 
       lines += 1
 
-      if res.status.to_i >= 200 && res.status.to_i < 300
+      # puts res.status
+      # puts res.body
+
+      if res.status.to_i >= 200 && res.status.to_i < 300 && res.body != 'An error has occurred'
         color = :green
         status = [ 'SUCCESS', '']
       else
