@@ -1,4 +1,8 @@
-asana_token: [INSERT ASANA PERSONAL TOKEN]
-sprintly_api_key: [INSERT SPRINTLY API KEY]
-sprintly_email: [INSERT SPRINTLY EMAIL]
-sprintly_product_id: [INSERT SPRINTLY PRODUCT ID]
+asana_token: INSERT ASANA PERSONAL TOKEN
+sprintly_api_key: INSERT SPRINTLY API KEY
+sprintly_email: INSERT SPRINTLY EMAIL
+sprintly_product_id: INSERT SPRINTLY PRODUCT ID
+bw_staging_api_key: INSERT STAGING API KEY
+bw_uat_api_key: INSERT UAT API KEY
+bw_prod_api_key: INSERT PROD API KEY
+
