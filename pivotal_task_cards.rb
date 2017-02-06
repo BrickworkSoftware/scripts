@@ -10,7 +10,7 @@ require 'prawn/icon'
 
 font_type = "Helvetica"
 icons = [ 'fa-shopping-bag', 'fa-ticket', 'fa-map-pin', 'fa-rocket',
-  'fa-cc-visa', 'fa-car', 'fa-anchor', 'fa-camera', 'fa-bullhorn', 'fa-bullseye',
+  'fa-car', 'fa-anchor', 'fa-camera', 'fa-bullhorn', 'fa-bullseye',
   'fa-asterisk', 'fa-bicycle', 'fa-cloud', 'fa-diamond', 'fa-flag',
   'fa-microphone', 'fa-plane' ]
 
