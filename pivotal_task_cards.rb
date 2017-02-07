@@ -8,11 +8,13 @@ require 'prawn/icon'
 
 @conf = YAML::load_file('config.yml')
 
-icons = [ 'fa-shopping-bag', 'fa-ticket', 'fa-map-pin', 'fa-rocket',
-  'fa-car', 'fa-anchor', 'fa-camera', 'fa-bullhorn', 'fa-bullseye',
-  'fa-asterisk', 'fa-bicycle', 'fa-cloud', 'fa-diamond', 'fa-flag',
-  'fa-plane', 'fa-cogs', 'fa-magnet', 'fa-paper-plane', 'fa-hashtag',
-  'fa-plug', 'fa-shopping-cart', 'fa-moon-o', 'fa-wrench']
+icons = [ 'fi-marker', 'fi-heart', 'fi-star', 'fi-check', 'fi-widget',
+  'fi-paperclip', 'fi-lock', 'fi-magnifying-glass', 'fi-lock', 'fi-cloud',
+  'fi-wrench', 'fi-flag', 'fi-clock', 'fi-eye', 'fi-camera', 'fi-mail',
+  'fi-telephone', 'fi-megaphone', 'fi-web', 'fi-shopping-cart','fi-compass',
+  'fi-lightbulb', 'fi-asterisk', 'fi-at-sign', 'fi-key', 'fi-ticket',
+  'fi-anchor', 'fi-puzzle', 'fi-mountains', 'fi-trees', 'fi-mountains',
+  'fi-crown', 'fi-target', 'fi-die-six', 'fi-map']
 
 client = TrackerApi::Client.new(token: @conf['pivotal_api_key'])
 project = client.project(1916005) # dev project
@@ -36,13 +38,13 @@ def gen_card(pdf, icon, story, task, estimate)
   if (estimate) # have an hours estimate for the task?
     pdf.bounding_box([325, 22], :width => 40, :height => 12) do
       pdf.font(font_type, :size => 10, :style => :italic) { pdf.text estimate, :valign => :bottom, :align => :right }
-      # stroke_bounds
+      # pdf.stroke_bounds
     end
   end
 
-  pdf.bounding_box([330,230], :width => 50, :height => 50) do
-    pdf.icon icon, size:30
-    # stroke_bounds
+  pdf.bounding_box([340,245], :width => 50, :height => 50) do
+    pdf.icon icon, size:50
+    # pdf.stroke_bounds
   end
 
   pdf.start_new_page
