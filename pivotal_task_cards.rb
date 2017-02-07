@@ -43,7 +43,7 @@ def gen_card(pdf, icon, story, task, estimate)
   end
 
   pdf.bounding_box([340,245], :width => 50, :height => 50) do
-    pdf.icon icon, size:50
+    pdf.icon icon, size:50, :valign => :middle, :align => :center
     # pdf.stroke_bounds
   end
 
