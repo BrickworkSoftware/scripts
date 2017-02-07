@@ -2,7 +2,6 @@
 
 require 'yaml'
 require 'tracker_api'
-require 'csv'
 require 'prawn'
 require 'prawn/icon'
 
