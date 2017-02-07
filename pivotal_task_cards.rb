@@ -31,7 +31,7 @@ def gen_card(pdf, icon, story, task, estimate)
   pdf.move_down 20
   pdf.font(font_type, :size => 12) { pdf.text story } # story
   pdf.move_down 20
-  pdf.font(font_type, :size => 24, :style => :bold) { pdf.text task } # task
+  pdf.font(font_type, :size => 28, :style => :bold) { pdf.text task } # task
 
   if (estimate) # have an hours estimate for the task?
     pdf.bounding_box([325, 22], :width => 40, :height => 12) do
@@ -53,15 +53,21 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
   stories.each do |story|
     card_pic = icons.shift
     # puts card_pic
+    pts = story.attributes[:estimate].to_i
+    if (pts == 1)
+      pts = " [#{story.attributes[:estimate].to_i} pt]"
+    else
+      pts = " [#{story.attributes[:estimate].to_i} pts]"
+    end
     if (story.tasks.empty?)
       puts "Story with no tasks: #{story.name}"
-      gen_card(pdf, card_pic, story.name, story.name, nil)
+      gen_card(pdf, card_pic, story.name + pts, story.name, nil)
     end
     story.tasks.each do |task|
 
       /(.+?)( \((\d+h)\))?$/ =~ task.description
 
-      gen_card( pdf, card_pic, story.name, $1, $3)
+      gen_card( pdf, card_pic, story.name + pts, $1, $3)
 
     end
   end
