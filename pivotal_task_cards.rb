@@ -7,6 +7,25 @@ require 'prawn/icon'
 
 @conf = YAML::load_file('config.yml')
 
+# domain, *file_list = ARGV
+project, label = ARGV
+
+if( project.nil? || label.nil? )
+  puts "missing parameter(s)"
+  exit
+end
+
+if project.downcase == "asiago"
+  pid = 1917785
+  puts "Project: Asiago [#{pid}]"
+else
+  pid = 1916005
+  puts "Project: Dev [#{pid}]"
+end
+
+puts "Label: #{label}"
+puts "Running..."
+
 icons = [ 'fi-marker', 'fi-heart', 'fi-star', 'fi-check', 'fi-widget',
   'fi-paperclip', 'fi-lock', 'fi-magnifying-glass', 'fi-lock', 'fi-cloud',
   'fi-wrench', 'fi-flag', 'fi-clock', 'fi-eye', 'fi-camera', 'fi-mail',
@@ -16,10 +35,13 @@ icons = [ 'fi-marker', 'fi-heart', 'fi-star', 'fi-check', 'fi-widget',
   'fi-crown', 'fi-target', 'fi-die-six', 'fi-map']
 
 client = TrackerApi::Client.new(token: @conf['pivotal_api_key'])
-project = client.project(1916005) # dev project
-stories = project.stories(filter: 'label:"sprint 5"')
+# project = client.project(1916005) # dev project
+# stories = project.stories(filter: 'label:"sprint 5"')
 # project = client.project(1917785) # Asiago project
 # stories = project.stories(filter: 'label:"asiago_sprint_1"')
+
+project = client.project(pid)
+stories = project.stories(filter: "label:\"#{label}\"")
 
 icons.shuffle! # don't want to get bored with the icons
 card_pic = icons[0]
