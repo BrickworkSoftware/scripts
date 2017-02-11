@@ -11,8 +11,8 @@
 
 1. Your Pivotal API Token can be found at the bottom of your profile page on Pivotal. Take that token add it to your config.yml beside `pivotal_api_key` overwriting the boilerplate text.
 1. Execute script passing a `project` parameter and a `label` parameter.
-  1. The first parameter, `project` can be either "dev" or "asiago".
-  2. The second parameter, `label`, defines the label used to filter stories for inclusion. e.g. "sprint 5"
+  1. Project can be either "dev" or "asiago".
+  2. Label defines the label used to filter stories for inclusion. e.g. "sprint 5"
 1. Open `cards.pdf` created in the same directory as your script.
 1. Print
   1. In the print dialog, set your paper to `4x6 borderless`
@@ -20,8 +20,14 @@
 
 
 ```
-./pivotal_task_cards.rb PROJECT LABEL
-./pivotal_task_cards.rb (dev|asiago) "sprint 5"
+Usage: ./pivotal_task_cards.rb [options]
+
+Specific options:
+    -p, --project PROJECT            Select Pivotal project (dev, asiago)
+    -l, --label LABEL                Pivotal label to select stories
+    -h, --help                       Show this message
+
+./pivotal_task_cards.rb -p dev -l "sprint 5"
 ```
 
 

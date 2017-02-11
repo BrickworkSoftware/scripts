@@ -4,27 +4,41 @@ require 'yaml'
 require 'tracker_api'
 require 'prawn'
 require 'prawn/icon'
+require 'optparse'
 
 @conf = YAML::load_file('config.yml')
 
-# domain, *file_list = ARGV
-project, label = ARGV
+options = {}
+op = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options]"
+  opts.separator ""
+  opts.separator "Specific options:"
+  opts.on("-p", "--project PROJECT", [:dev, :asiago], "Select Pivotal project (dev, asiago)") do |p|
+    options[:project] = p
+  end
+  opts.on("-l", "--label LABEL", "Pivotal label to select stories") do |l|
+    options[:label] = l
+  end
+  # No argument, shows at tail.  This will print an options summary.
+  # Try it and see!
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+op.parse!
 
-if( project.nil? || label.nil? )
-  puts "missing parameter(s)"
+if options[:project].nil? || options[:label].nil?
+  puts "Missing required parameters\n\n"
+  puts op.help()
   exit
 end
 
-if project.downcase == "asiago"
+if options[:project] == "asiago"
   pid = 1917785
-  puts "Project: Asiago [#{pid}]"
 else
   pid = 1916005
-  puts "Project: Dev [#{pid}]"
 end
-
-puts "Label: #{label}"
-puts "Running..."
 
 icons = [ 'fi-marker', 'fi-heart', 'fi-star', 'fi-check', 'fi-widget',
   'fi-paperclip', 'fi-lock', 'fi-magnifying-glass', 'fi-lock', 'fi-cloud',
@@ -41,7 +55,7 @@ client = TrackerApi::Client.new(token: @conf['pivotal_api_key'])
 # stories = project.stories(filter: 'label:"asiago_sprint_1"')
 
 project = client.project(pid)
-stories = project.stories(filter: "label:\"#{label}\"")
+stories = project.stories(filter: "label:\"#{options[:label]}\"")
 
 icons.shuffle! # don't want to get bored with the icons
 card_pic = icons[0]
