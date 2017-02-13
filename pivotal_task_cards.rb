@@ -19,6 +19,9 @@ op = OptionParser.new do |opts|
   opts.on("-l", "--label LABEL", "Pivotal label to select stories") do |l|
     options[:label] = l
   end
+  opts.on("-s", "--[no-]storycards", "Only generate story cards") do |s|
+    options[:story_cards] = s
+  end
   # No argument, shows at tail.  This will print an options summary.
   # Try it and see!
   opts.on_tail("-h", "--help", "Show this message") do
@@ -96,9 +99,10 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
     else
       pts = " [#{story.attributes[:estimate].to_i} pts]"
     end
-    if (story.tasks.empty?)
-      puts "Story with no tasks: #{story.name}"
+    if (story.tasks.empty? || options[:story_cards])
+      puts "Only story card: #{story.name}"
       gen_card(pdf, card_pic, story.name + pts, story.name, nil)
+      next
     end
     story.tasks.each do |task|
 
