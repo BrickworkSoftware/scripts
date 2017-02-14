@@ -13,11 +13,14 @@ op = OptionParser.new do |opts|
   opts.banner = "Usage: #{$0} [options]"
   opts.separator ""
   opts.separator "Specific options:"
-  opts.on("-p", "--project PROJECT", [:dev, :asiago], "Select Pivotal project (dev, asiago)") do |p|
+  opts.on("-p", "--project PROJECT", [:dev, :asiago, :product], "REQ: Pivotal project (dev, asiago, product)") do |p|
     options[:project] = p
   end
   opts.on("-l", "--label LABEL", "Pivotal label to select stories") do |l|
     options[:label] = l
+  end
+  opts.on("-b", "--[no-]backlog", "Unstarted backlog stories") do |b|
+    options[:unstarted] = b
   end
   opts.on("-s", "--[no-]storycards", "Only generate story cards") do |s|
     options[:story_cards] = s
@@ -31,16 +34,29 @@ op = OptionParser.new do |opts|
 end
 op.parse!
 
-if options[:project].nil? || options[:label].nil?
-  puts "Missing required parameters\n\n"
+if options[:project].nil? #|| options[:label].nil?
+  puts "Project is a required parameter\n\n"
   puts op.help()
   exit
 end
 
-if options[:project] == "asiago"
-  pid = 1917785
+# no need to generate a card for a "release"
+filter ="type:feature,bug,chore"
+
+if options[:project] == :asiago
+  pid = 1917785 # asiago project
+elsif options[:project] == :product
+  pid = 1914871 # product project
 else
-  pid = 1916005
+  pid = 1916005 # dev project
+end
+
+if options[:label]
+  filter += " label:\"#{options[:label]}\""
+end
+
+if options[:unstarted]
+  filter += " state:unstarted"
 end
 
 icons = [ 'fi-marker', 'fi-heart', 'fi-star', 'fi-check', 'fi-widget',
@@ -58,7 +74,11 @@ client = TrackerApi::Client.new(token: @conf['pivotal_api_key'])
 # stories = project.stories(filter: 'label:"asiago_sprint_1"')
 
 project = client.project(pid)
-stories = project.stories(filter: "label:\"#{options[:label]}\"")
+# stories = project.stories(filter: "label:\"#{options[:label]}\" state:unstarted")
+# stories = project.stories(with_state: :unstarted, limit: 10)
+stories = project.stories(filter: filter)
+
+puts "Generating cards for #{stories.length} stories"
 
 icons.shuffle! # don't want to get bored with the icons
 card_pic = icons[0]
