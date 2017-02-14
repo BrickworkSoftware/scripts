@@ -13,7 +13,7 @@ op = OptionParser.new do |opts|
   opts.banner = "Usage: #{$0} [options]"
   opts.separator ""
   opts.separator "Specific options:"
-  opts.on("-p", "--project PROJECT", [:dev, :asiago, :product], "REQ: Pivotal project (dev, asiago, product)") do |p|
+  opts.on("-p", "--project PROJECT", [:dev, :asiago, :product], "REQD: 'dev', 'asiago', 'product'") do |p|
     options[:project] = p
   end
   opts.on("-l", "--label LABEL", "Pivotal label to select stories") do |l|
