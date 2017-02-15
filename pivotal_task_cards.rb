@@ -91,7 +91,14 @@ def gen_card(pdf, icon, story, task, estimate)
   pdf.move_down 20
   pdf.font(font_type, :size => 12) { pdf.text story } # story
   pdf.move_down 20
-  pdf.font(font_type, :size => 28, :style => :bold) { pdf.text task } # task
+  # pdf.font(font_type, :size => 28, :style => :bold) { pdf.text task } # task
+  pdf.font(font_type, :size => 28, :style => :bold) {
+    pdf.text_box task,
+      :at => [0, 170],
+      :overflow => :shrink_to_fit,
+      :min_font_size => 12
+    # pdf.text task
+  }
 
   if (estimate) # have an hours estimate for the task?
     pdf.bounding_box([325, 22], :width => 40, :height => 12) do
