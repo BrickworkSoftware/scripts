@@ -83,7 +83,7 @@ puts "Generating cards for #{stories.length} stories"
 icons.shuffle! # don't want to get bored with the icons
 card_pic = icons[0]
 
-def gen_card(pdf, icon, story, task, estimate)
+def gen_card(pdf, icon, story, task, estimate, type)
   font_type = "Helvetica"
 
   # pdf.stroke_axis
@@ -91,6 +91,14 @@ def gen_card(pdf, icon, story, task, estimate)
   pdf.move_down 20
   pdf.font(font_type, :size => 12) { pdf.text story } # story
   pdf.move_down 20
+
+  if type == 'bug'
+    pdf.transparent(0.25) do
+      pdf.fill_color "F44242" # red
+      pdf.icon 'fa-bug', size:150, :valign => :middle, :align => :center
+    end
+  end
+
   # pdf.font(font_type, :size => 28, :style => :bold) { pdf.text task } # task
   pdf.font(font_type, :size => 28, :style => :bold) {
     pdf.text_box task,
@@ -99,6 +107,7 @@ def gen_card(pdf, icon, story, task, estimate)
       :min_font_size => 12
     # pdf.text task
   }
+
 
   if (estimate) # have an hours estimate for the task?
     pdf.bounding_box([325, 22], :width => 40, :height => 12) do
@@ -128,14 +137,14 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
     end
     if (story.tasks.empty? || options[:story_cards])
       puts "Only story card: #{story.name}"
-      gen_card(pdf, card_pic, story.name + pts, story.name, nil)
+      gen_card(pdf, card_pic, story.name + pts, story.name, nil, story.story_type)
       next
     end
     story.tasks.each do |task|
 
       /(.+?)( \((\d+h)\))?$/ =~ task.description
 
-      gen_card( pdf, card_pic, story.name + pts, $1, $3)
+      gen_card( pdf, card_pic, story.name + pts, $1, $3, story.story_type)
 
     end
   end
