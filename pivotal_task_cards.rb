@@ -25,6 +25,9 @@ op = OptionParser.new do |opts|
   opts.on("-s", "--story_id STORY_ID", "ID of a particular story") do |s|
     options[:story_id] = s
   end
+  opts.on("-i", "--corner_icon ICON", "Corner icon") do |i|
+    options[:corner_icon] = i
+  end
   opts.on("-S", "--storycards", "Only generate story cards") do |s|
     options[:story_cards] = s
   end
@@ -136,7 +139,7 @@ end
 Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
 
   stories.each do |story|
-    card_pic = icons.shift
+    card_pic = options[:corner_icon] || icons.shift
     # puts card_pic
     pts = story.attributes[:estimate].to_i
     if (pts == 1)
