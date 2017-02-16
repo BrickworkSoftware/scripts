@@ -19,8 +19,9 @@ op = OptionParser.new do |opts|
   opts.on("-l", "--label LABEL", "Pivotal label to select stories") do |l|
     options[:label] = l
   end
-  opts.on("-b", "--[no-]backlog", "Unstarted backlog stories") do |b|
-    options[:unstarted] = b
+  # opts.on("-b", "--backlog", "Unstarted backlog stories") do |b|
+  #   options[:unstarted] = b
+  # end
   end
   opts.on("-s", "--[no-]storycards", "Only generate story cards") do |s|
     options[:story_cards] = s
