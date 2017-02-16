@@ -22,8 +22,10 @@ op = OptionParser.new do |opts|
   # opts.on("-b", "--backlog", "Unstarted backlog stories") do |b|
   #   options[:unstarted] = b
   # end
+  opts.on("-s", "--story_id STORY_ID", "ID of a particular story") do |s|
+    options[:story_id] = s
   end
-  opts.on("-s", "--[no-]storycards", "Only generate story cards") do |s|
+  opts.on("-S", "--storycards", "Only generate story cards") do |s|
     options[:story_cards] = s
   end
   # No argument, shows at tail.  This will print an options summary.
@@ -77,7 +79,13 @@ client = TrackerApi::Client.new(token: @conf['pivotal_api_key'])
 project = client.project(pid)
 # stories = project.stories(filter: "label:\"#{options[:label]}\" state:unstarted")
 # stories = project.stories(with_state: :unstarted, limit: 10)
-stories = project.stories(filter: filter)
+stories = []
+if options[:label] || options[:unstarted]
+  stories += project.stories(filter: filter)
+end
+if options[:story_id]
+  stories << project.story(options[:story_id].to_i)
+end
 
 puts "Generating cards for #{stories.length} stories"
 
