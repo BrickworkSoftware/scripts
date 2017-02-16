@@ -19,9 +19,6 @@ op = OptionParser.new do |opts|
   opts.on("-l", "--label LABEL", "Pivotal label to select stories") do |l|
     options[:label] = l
   end
-  # opts.on("-b", "--backlog", "Unstarted backlog stories") do |b|
-  #   options[:unstarted] = b
-  # end
   opts.on("-s", "--story_id STORY_ID", "ID of a particular story") do |s|
     options[:story_id] = s
   end
@@ -46,23 +43,12 @@ if options[:project].nil? #|| options[:label].nil?
   exit
 end
 
-# no need to generate a card for a "release"
-filter ="type:feature,bug,chore"
-
 if options[:project] == :asiago
   pid = 1917785 # asiago project
 elsif options[:project] == :product
   pid = 1914871 # product project
 else
   pid = 1916005 # dev project
-end
-
-if options[:label]
-  filter += " label:\"#{options[:label]}\""
-end
-
-if options[:unstarted]
-  filter += " state:unstarted"
 end
 
 icons = [ 'fi-marker', 'fi-heart', 'fi-star', 'fi-check', 'fi-widget',
@@ -80,11 +66,10 @@ client = TrackerApi::Client.new(token: @conf['pivotal_api_key'])
 # stories = project.stories(filter: 'label:"asiago_sprint_1"')
 
 project = client.project(pid)
-# stories = project.stories(filter: "label:\"#{options[:label]}\" state:unstarted")
-# stories = project.stories(with_state: :unstarted, limit: 10)
+# stories = project.stories(filter: "label:\"#{options[:label]}\"")
 stories = []
-if options[:label] || options[:unstarted]
-  stories += project.stories(filter: filter)
+if options[:label]
+  stories += project.stories(filter: "label:\"#{options[:label]}\"")
 end
 if options[:story_id]
   stories << project.story(options[:story_id].to_i)
