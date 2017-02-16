@@ -90,7 +90,7 @@ def gen_card(pdf, icon, story, task, estimate, type)
   pdf.move_down 20
 
   if type == 'bug'
-    pdf.transparent(0.25) do
+    pdf.transparent(0.15) do
       pdf.fill_color "F44242" # red
       pdf.icon 'fa-bug', size:150, :valign => :middle, :align => :center
     end
