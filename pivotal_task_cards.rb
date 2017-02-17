@@ -139,7 +139,8 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
     end
     story.tasks.each do |task|
 
-      /(.+?)( \((\d+h)\))?$/ =~ task.description
+      # /(.+?)( \((\d+h)\))?$/ =~ task.description
+      /^(.+?)( \((\d+h)\))?( ?\[.*\])?$/ =~ task.description
 
       gen_card( pdf, card_pic, story.name + pts, $1, $3, story.story_type)
 
