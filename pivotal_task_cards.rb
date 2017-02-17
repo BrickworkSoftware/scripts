@@ -69,10 +69,10 @@ project = client.project(pid)
 # stories = project.stories(filter: "label:\"#{options[:label]}\"")
 stories = []
 if options[:label]
-  stories += project.stories(filter: "label:\"#{options[:label]}\"")
+  stories += project.stories(filter: "label:\"#{options[:label]}\"", fields: ':default,owners,tasks')
 end
 if options[:story_id]
-  stories << project.story(options[:story_id].to_i)
+  stories << project.story(options[:story_id].to_i, fields: ':default,owners,tasks')
 end
 
 puts "Generating cards for #{stories.length} stories"
@@ -80,7 +80,7 @@ puts "Generating cards for #{stories.length} stories"
 icons.shuffle! # don't want to get bored with the icons
 card_pic = icons[0]
 
-def gen_card(pdf, icon, story, task, estimate, type)
+def gen_card(pdf, icon, story, task, estimate, type, owner)
   font_type = "Helvetica"
 
   # pdf.stroke_axis
@@ -113,6 +113,13 @@ def gen_card(pdf, icon, story, task, estimate, type)
     end
   end
 
+  if (owner) # have an hours estimate for the task?
+    pdf.bounding_box([-10, 10], :width => 70, :height => 22) do
+      pdf.font(font_type, :size => 16, :style => :bold) { pdf.text owner, :valign => :bottom, :align => :left }
+      # pdf.stroke_bounds
+    end
+  end
+
   pdf.bounding_box([340,245], :width => 50, :height => 50) do
     pdf.icon icon, size:50, :valign => :middle, :align => :center
     # pdf.stroke_bounds
@@ -132,9 +139,13 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
     else
       pts = " [#{story.attributes[:estimate].to_i} pts]"
     end
+    initials = nil
+    if !story.owners.empty?
+      initials = story.owners[0].initials # not bothering with mult-owned stories
+    end
     if (story.tasks.empty? || options[:story_cards])
       puts "Only story card: #{story.name}"
-      gen_card(pdf, card_pic, story.name + pts, story.name, nil, story.story_type)
+      gen_card(pdf, card_pic, story.name + pts, story.name, nil, story.story_type, initials)
       next
     end
     story.tasks.each do |task|
@@ -142,7 +153,7 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
       # /(.+?)( \((\d+h)\))?$/ =~ task.description
       /^(.+?)( \((\d+h)\))?( ?\[.*\])?$/ =~ task.description
 
-      gen_card( pdf, card_pic, story.name + pts, $1, $3, story.story_type)
+      gen_card( pdf, card_pic, story.name + pts, $1, $3, story.story_type, initials)
 
     end
   end
