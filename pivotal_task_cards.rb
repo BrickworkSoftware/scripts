@@ -85,11 +85,16 @@ def gen_card(pdf, icon, story, task, estimate, type, owner)
 
   # pdf.stroke_axis
 
-  pdf.move_down 20
-  pdf.font(font_type, :size => 12) { pdf.text story } # story
-  pdf.move_down 20
+  pdf.font(font_type, :size => 12) {
+    pdf.text_box story,
+      :at => [0,210],
+      :width => 340,
+      :overflow => :shrink_to_fit,
+      :min_font_size => 6
+  } # story
 
   if type == 'bug'
+    pdf.move_down 50
     pdf.transparent(0.15) do
       pdf.fill_color "F44242" # red
       pdf.icon 'fa-bug', size:150, :valign => :middle, :align => :center
