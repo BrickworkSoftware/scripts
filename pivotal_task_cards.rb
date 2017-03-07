@@ -19,8 +19,10 @@ op = OptionParser.new do |opts|
   opts.on("-l", "--label LABEL", "Pivotal label to select stories") do |l|
     options[:label] = l
   end
-  opts.on("-s", "--story_id STORY_ID", "ID of a particular story") do |s|
-    options[:story_id] = s
+  opts.on("-d", "--story_id STORY_ID", "ID of a particular story") do |s|
+    if /^#?(\d+)$/ =~ s
+      options[:story_id] = $1
+    end
   end
   opts.on("-i", "--corner_icon ICON", "Corner icon") do |i|
     options[:corner_icon] = i
