@@ -25,8 +25,9 @@ Usage: ./pivotal_task_cards.rb [options]
 Specific options:
     -p, --project PROJECT            REQD: 'dev', 'asiago', 'product'
     -l, --label LABEL                Pivotal label to select stories
-    -b, --[no-]backlog               Unstarted backlog stories
-    -s, --[no-]storycards            Only generate story cards
+    -d, --story_id STORY_ID          ID of a particular story
+    -i, --corner_icon ICON           Corner icon
+    -S, --storycards                 Only generate story cards
     -h, --help                       Show this message
 
 ./pivotal_task_cards.rb -p dev -l "sprint 5"
