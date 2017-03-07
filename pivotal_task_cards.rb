@@ -134,7 +134,7 @@ def gen_card(pdf, icon, story, task, estimate, type, owner)
 end
 
 Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
-
+  i = 0
   stories.each do |story|
     card_pic = options[:corner_icon] || icons.shift
     # puts card_pic
@@ -148,11 +148,13 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
     if !story.owners.empty?
       initials = story.owners[0].initials # not bothering with mult-owned stories
     end
+    i += 1
     if (story.tasks.empty? || options[:story_cards])
-      puts "Only story card: #{story.name}"
+      puts "Story (#{i}/#{stories.length}) - Only Story Card:\n  #{story.name}"
       gen_card(pdf, card_pic, story.name + pts, story.name, nil, story.story_type, initials)
       next
     end
+    puts "Story (#{i}/#{stories.length}) with #{story.tasks.length} Tasks:\n  #{story.name}"
     story.tasks.each do |task|
 
       # /(.+?)( \((\d+h)\))?$/ =~ task.description
@@ -160,6 +162,7 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
 
       gen_card( pdf, card_pic, story.name + pts, $1, $3, story.story_type, initials)
 
+      # puts "    Task Card..."
     end
   end
 end
