@@ -54,11 +54,11 @@ else
 end
 
 icons = [ 'fi-marker', 'fi-heart', 'fi-star', 'fi-check', 'fi-widget',
-  'fi-paperclip', 'fi-lock', 'fi-magnifying-glass', 'fi-lock', 'fi-cloud',
+  'fi-paperclip', 'fi-lock', 'fi-magnifying-glass', 'fi-cloud',
   'fi-wrench', 'fi-flag', 'fi-clock', 'fi-eye', 'fi-camera', 'fi-mail',
   'fi-telephone', 'fi-megaphone', 'fi-web', 'fi-shopping-cart','fi-compass',
   'fi-lightbulb', 'fi-asterisk', 'fi-at-sign', 'fi-key', 'fi-ticket',
-  'fi-anchor', 'fi-puzzle', 'fi-mountains', 'fi-trees', 'fi-mountains',
+  'fi-anchor', 'fi-puzzle', 'fi-mountains', 'fi-trees',
   'fi-crown', 'fi-target', 'fi-die-six', 'fi-map']
 
 client = TrackerApi::Client.new(token: @conf['pivotal_api_key'])
