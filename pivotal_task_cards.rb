@@ -154,7 +154,7 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
     story_ord = "(#{i}/#{stories.length})"
     if (story.tasks.empty? || options[:story_cards])
       puts "Story #{story_ord} - Only Story Card:\n  #{story.name}"
-      gen_card(pdf, card_pic, "#{ord} #{story.name} #{pts}", story.name, nil, story.story_type, initials)
+      gen_card(pdf, card_pic, "#{story.name} #{pts}", story.name, nil, story.story_type, initials)
       next
     end
     puts "Story #{story_ord} with #{story.tasks.length} Tasks:\n  #{story.name}"
