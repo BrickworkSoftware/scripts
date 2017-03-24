@@ -114,7 +114,7 @@ def gen_card(pdf, icon, story, task, estimate, type, owner)
 
 
   if (estimate) # have an hours estimate for the task?
-    pdf.bounding_box([325, 22], :width => 40, :height => 12) do
+    pdf.bounding_box([325, 5], :width => 40, :height => 12) do
       pdf.font(font_type, :size => 10, :style => :italic) { pdf.text estimate, :valign => :bottom, :align => :right }
       # pdf.stroke_bounds
     end
