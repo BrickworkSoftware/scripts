@@ -142,27 +142,31 @@ Prawn::Document.generate( "cards.pdf", :page_size => [432, 288]) do |pdf|
     # puts card_pic
     pts = story.attributes[:estimate].to_i
     if (pts == 1)
-      pts = " [#{story.attributes[:estimate].to_i} pt]"
+      pts = "[#{story.attributes[:estimate].to_i} pt]"
     else
-      pts = " [#{story.attributes[:estimate].to_i} pts]"
+      pts = "[#{story.attributes[:estimate].to_i} pts]"
     end
     initials = nil
     if !story.owners.empty?
       initials = story.owners[0].initials # not bothering with mult-owned stories
     end
     i += 1
+    story_ord = "(#{i}/#{stories.length})"
     if (story.tasks.empty? || options[:story_cards])
-      puts "Story (#{i}/#{stories.length}) - Only Story Card:\n  #{story.name}"
-      gen_card(pdf, card_pic, story.name + pts, story.name, nil, story.story_type, initials)
+      puts "Story #{story_ord} - Only Story Card:\n  #{story.name}"
+      gen_card(pdf, card_pic, "#{ord} #{story.name} #{pts}", story.name, nil, story.story_type, initials)
       next
     end
-    puts "Story (#{i}/#{stories.length}) with #{story.tasks.length} Tasks:\n  #{story.name}"
+    puts "Story #{story_ord} with #{story.tasks.length} Tasks:\n  #{story.name}"
+
+    j = 0
     story.tasks.each do |task|
+      j += 1
 
       # /(.+?)( \((\d+h)\))?$/ =~ task.description
       /^(.+?)( \((\d+h)\))?( ?\[.*\])?$/ =~ task.description
 
-      gen_card( pdf, card_pic, story.name + pts, $1, $3, story.story_type, initials)
+      gen_card( pdf, card_pic, "#{story.name} #{pts}", "(#{j}/#{story.tasks.length}) #{$1}", $3, story.story_type, initials)
 
       # puts "    Task Card..."
     end
